@@ -7,9 +7,7 @@
     <title>Todo Card</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
     <article data-testid="test-todo-card" class="card">
 
         <!-- Title -->
@@ -18,7 +16,7 @@
         </h2>
 
         <!-- Description -->
-        <p data-testid="test-todo-description" class="description">
+        <p data-testid="test-todo-description" id="description" class="description">
             Review feedback and update the todo budget.
         </p>
 
@@ -62,6 +60,16 @@
             <button data-testid="test-todo-delete-button">Delete</button>
         </div>
 
+        <div id="edit-modal" class="modal hidden">
+            <div class="modal-content">
+                <input type="text" id="edit-input" placeholder="Edit todo title" />
+
+                <div class="modal-buttons">
+                    <button id="cancel-edit">Cancel</button>
+                    <button id="save-edit">OK</button>
+                </div>
+            </div>
+        </div>
     </article>
 
     <script src="script.js"></script>
