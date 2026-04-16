@@ -16,6 +16,8 @@ const indicator = document.getElementById("priority-indicator");
 const text = document.getElementById("priority-text");
 const editPriority = document.getElementById("edit-priority");
 const overdueIndicator = document.getElementById("overdue-indicator");
+const editDate = document.getElementById("edit-date");
+const dueDateDisplay = document.querySelector("[data-testid='test-todo-due-date']");
 const statusControl = document.getElementById("status-control");
 const descriptionText = document.getElementById("description");
 
@@ -47,31 +49,30 @@ function checkOverflow() {
 checkOverflow();
 
 
-    function updatePriorityUI(value) {
-        const indicator = document.getElementById("priority-indicator");
-        const text = document.getElementById("priority-text");
+function updatePriorityUI(value) {
 
-        if (!indicator || !text) return;
 
-        indicator.classList.remove("priority-low", "priority-medium", "priority-high");
+    if (!indicator || !text) return;
 
-        if (value === "Low") {
-            indicator.classList.add("priority-low");
-            text.style.color = "#22c55e";
-        } else if (value === "Medium") {
-            indicator.classList.add("priority-medium");
-            text.style.color = "#f59e0b";
-        } else {
-            indicator.classList.add("priority-high");
-            text.style.color = "#ef4444";
-        }
+    indicator.classList.remove("priority-low", "priority-medium", "priority-high");
 
-        text.textContent = value;
+    if (value === "Low") {
+        indicator.classList.add("priority-low");
+        text.style.color = "#22c55e";
+    } else if (value === "Medium") {
+        indicator.classList.add("priority-medium");
+        text.style.color = "#f59e0b";
+    } else {
+        indicator.classList.add("priority-high");
+        text.style.color = "#ef4444";
     }
-    updatePriorityUI("High");
+
+    text.textContent = value;
+}
+updatePriorityUI("High");
 
 
-const dueDate = new Date(Date.now() + 2 * 60 * 60 * 1000);
+let dueDate = new Date("2026-04-19T18:00");
 
 function updateTime() {
     const now = new Date();
@@ -81,7 +82,9 @@ function updateTime() {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (status.textContent === "Done") {
+    const isDone = status.classList.contains("complete");
+
+    if (isDone) {
         timeRemaining.textContent = "Completed";
         overdueIndicator.classList.add("hidden");
         card.classList.remove("overdue");
@@ -122,7 +125,7 @@ function updateTime() {
 
 }
 updateTime();
-setInterval(updateTime, 60000);
+setInterval(updateTime, 1000);
 
 statusControl.addEventListener("change", () => {
     const value = statusControl.value;
@@ -135,11 +138,13 @@ statusControl.addEventListener("change", () => {
         toggle.checked = true;
         status.classList.add("complete");
         title.style.textDecoration = "line-through";
-    } else if (value === "In Progress") {
+    }
+    else if (value === "In Progress") {
         toggle.checked = false;
         status.classList.add("in-progress");
         title.style.textDecoration = "none";
-    } else {
+    }
+    else {
         toggle.checked = false;
         status.classList.add("pending");
         title.style.textDecoration = "none";
@@ -169,6 +174,7 @@ toggle.addEventListener("change", () => {
 editBtn.addEventListener("click", () => {
     card.classList.add("hidden");
     editForm.classList.remove("hidden");
+    editDate.value = dueDate.toISOString().slice(0, 16);
 
     editTitle.value = title.textContent.trim();
     editDescription.value = description.textContent.trim();
@@ -187,20 +193,39 @@ saveBtn.addEventListener("click", () => {
 
     updatePriorityUI(editPriority.value);
 
+    if (editDate.value) {
+        dueDate = new Date(editDate.value);
+        updateDueDateUI(dueDate);
+        updateTime();
+
+    }
 
     collapsible.classList.add("collapsed");
     collapsible.classList.remove("expanded");
-    expandBtn.textContent = "Show More";
+
+    expandBtn.textContent = "Show More ⌄";
     expandBtn.setAttribute("aria-expanded", "false");
 
     editForm.classList.add("hidden");
     card.classList.remove("hidden");
 
     checkOverflow();
-
     editBtn.focus();
 });
 
+function updateDueDateUI(date) {
+    const formatted = date.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+
+    dueDateDisplay.textContent = `Due ${formatted}`;
+    dueDateDisplay.setAttribute("datetime", date.toISOString());
+}
+
+updateDueDateUI(dueDate);
+updateTime();
+setInterval(updateTime, 1000);
 
 document
     .querySelector("[data-testid='test-todo-delete-button']")
